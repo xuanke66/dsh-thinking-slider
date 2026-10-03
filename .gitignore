@@ -1,0 +1,9 @@
+# Runtime state written by the Host half: the per-model effort memory.
+# Contains machine-local choices, never belongs in version control.
+preferences.json
+preferences.json.tmp
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+*.swp
