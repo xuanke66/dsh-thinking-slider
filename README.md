@@ -27,7 +27,15 @@
 
 ## 安装
 
-1. 下载本仓库（`git clone` 或解压 Release 里的 zip），得到一个含 `package.json` 的目录。
+1. 取得插件目录，两种方式任选：
+
+   - **下载打包好的 zip**：**[⬇ Releases · 最新版](https://github.com/xuanke66/dsh-thinking-slider/releases/latest)** —— 下载 `dsh-thinking-slider.zip` 后解压，得到 `dsh-thinking-slider/` 目录。
+   - **或直接克隆仓库**：
+
+     ```
+     git clone https://github.com/xuanke66/dsh-thinking-slider.git
+     ```
+
 2. 让 DSH 里的 Agent 执行：
 
    ```
@@ -35,6 +43,8 @@
    ```
 
    > `target` 必须是**含 `package.json` 的那一层目录**，不要指向它的子目录。
+   >
+   > 用 zip 的话，就是解压出来的 `dsh-thinking-slider/`；用 `git clone` 的话，就是克隆下来的仓库根目录。
 
 3. **重启 DSH**。Host 半（`index.js`）需要新的模块代际才会生效。
 
