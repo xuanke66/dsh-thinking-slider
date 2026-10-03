@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Thinking slider">
+  <rect x="6" y="29" width="52" height="6" rx="3" fill="#c9cdc7"/>
+  <circle cx="14" cy="32" r="6" fill="#b52b24"/>
+  <circle cx="32" cy="32" r="6" fill="#b52b24"/>
+  <circle cx="50" cy="32" r="6" fill="#c19a49"/>
+  <circle cx="50" cy="32" r="10" fill="none" stroke="#c19a49" stroke-width="2" opacity="0.55"/>
+</svg>
