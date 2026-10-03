@@ -1,0 +1,54 @@
+{
+  "name": "@local/dsh-thinking-slider",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "滑动变祖器 · DeepSeek 思考程度滑块：把 off/low/high/max 推理档位做成一根滑杆",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xuanke66/dsh-thinking-slider.git"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "bundle",
+    "reasoning-effort",
+    "thinking",
+    "slider"
+  ],
+  "meta": {
+    "title": "滑动变祖器 · 思考程度滑块",
+    "description": "把 DeepSeek 的推理档位 off / low / high / max 做成一根滑杆，拖动即真实切换，并用 241 帧连续进化影像反馈强度。"
+  },
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "video/*.mp4",
+    "docs/*.png"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-model-selection"
+      ]
+    }
+  }
+}
