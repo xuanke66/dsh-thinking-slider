@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-thinking-slider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "滑动变祖器 · DeepSeek 思考程度滑块：把 off/low/high/max 推理档位做成一根滑杆",
