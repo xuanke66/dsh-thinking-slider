@@ -153,7 +153,8 @@ plugin_manager  action: remove_bundle    target: @local/dsh-thinking-slider
 - 素材通过 Host 半的 HTTP 路由提供，需要 `index.js` 被加载；桌面版同样从本机 HTTP 加载界面，所以可用。
 - 冷启动时客户端要一次性拉完约 4.9 MB。本机 HTTP 下是毫秒级；若路由尚未就绪，客户端每 500ms 重试、最多 60 次。
 - 档位切换是「下一个请求生效」：正在跑的那一步仍用它开始时选定的档位（Harness 本身的语义）。
-- 弹层宽度固定 320px，按触发器位置做视口边缘夹取。
+- 弹层宽度固定 288px，右缘对齐作曲家最右侧的发送/停止按钮，并按视口边缘夹取。
+- 弹层通过 `ReactDOM.createPortal` 挂到 `document.body`：停靠式作曲家会为 `position: fixed` 建立包含块，不 portal 的话弹层的视口坐标会被按作曲家重新解析，位置整体偏移。
 
 ## 目录结构
 

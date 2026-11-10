@@ -18,6 +18,12 @@ window.__ModuleLoader__.load({
   id: '@local/dsh-thinking-slider',
   factory(require) {
     const React = require('react');
+    // react-dom is in the loader's builtin module map, same as react: the
+    // popup must portal to the document body because the docked composer now
+    // contains fixed-position elements (an ancestor establishes a containing
+    // block), which would otherwise resolve the popup's viewport coordinates
+    // against the composer and shift it.
+    const ReactDOM = require('react-dom');
     const h = React.createElement;
     const {
       useCallback,
@@ -44,7 +50,7 @@ window.__ModuleLoader__.load({
     /** Stage names, weakest to strongest, spread across the anchors. */
     const STAGES = ['小难梁', '梁子', '梁圣', '梁祖'];
     /** Popup width used for edge clamping. */
-    const POPUP_WIDTH = 320;
+    const POPUP_WIDTH = 288;
 
     const zh = {
       title: '滑动变祖器',
@@ -83,7 +89,7 @@ window.__ModuleLoader__.load({
       '.tsl-trigger-effort{flex-shrink:1000;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-secondary);opacity:.75}',
       '.tsl-caret{flex:none;width:12px;height:12px;opacity:.7}',
       // ---- popup ----
-      '.tsl-popup{position:fixed;z-index:1100;box-sizing:border-box;width:320px;max-width:calc(100vw - 24px);padding:6px;border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:#ffffff;color:var(--dsw-alias-label-primary);box-shadow:0 14px 36px rgb(0 0 0 / 22%)}',
+      '.tsl-popup{position:fixed;z-index:1100;box-sizing:border-box;width:288px;max-width:calc(100vw - 24px);padding:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:#ffffff;color:var(--dsw-alias-label-primary);box-shadow:0 14px 36px rgb(0 0 0 / 22%)}',
       // ui-theme marks the dark palette with body[data-ds-dark-theme].
       'body[data-ds-dark-theme] .tsl-popup{background:var(--dsw-alias-bg-layer-1)}',
       '.tsl-popup[hidden]{display:none}',
@@ -107,10 +113,10 @@ window.__ModuleLoader__.load({
       // ---- calibrator card ----
       '.tsl-popup .tsl-card{max-width:none;margin:0;padding:6px 8px 4px;border:0;border-radius:8px;background:none;box-shadow:none}',
       '.tsl-main{display:flex;flex-direction:column;gap:8px;min-width:0}',
-      '.tsl-portrait{display:block;width:100%;aspect-ratio:1 / 1;max-height:200px;border-radius:10px;background:var(--dsw-alias-bg-layer-2);box-shadow:0 0 calc(2px + var(--tsl-strength,0) * 18px) color-mix(in srgb, var(--dsw-alias-brand-primary) calc(var(--tsl-strength,0) * 55%), transparent)}',
+      '.tsl-portrait{display:block;width:100%;aspect-ratio:1 / 1;max-height:176px;border-radius:10px;background:var(--dsw-alias-bg-layer-2);box-shadow:0 0 calc(2px + var(--tsl-strength,0) * 18px) color-mix(in srgb, var(--dsw-alias-brand-primary) calc(var(--tsl-strength,0) * 55%), transparent)}',
       '.tsl-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}',
       '.tsl-title-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}',
-      '.tsl-stage{font-family:"Songti SC",STSong,"SimSun",serif;font-weight:900;font-size:24px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.tsl-stage{font-family:"Songti SC",STSong,"SimSun",serif;font-weight:900;font-size:21px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.tsl-count{flex:none;color:var(--dsw-alias-label-secondary);font-size:11px;font-variant-numeric:tabular-nums}',
       '.tsl-sub{color:var(--dsw-alias-label-secondary);font-size:11px;line-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.tsl-dim{color:var(--dsw-alias-state-idle-primary);font-size:11px;line-height:15px}',
@@ -864,8 +870,26 @@ window.__ModuleLoader__.load({
         if (element === null) return;
         const rect = element.getBoundingClientRect();
         const width = Math.min(POPUP_WIDTH, window.innerWidth - 24);
-        const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
-        setAnchor({ left, bottom: window.innerHeight - rect.top + 8 });
+        // Align the popup's right edge with the send/stop button, not the
+        // trigger: the trigger sits left of it, and right-aligning to the
+        // trigger leaves the popup visibly short of the composer's right edge.
+        // The composer card is the first ancestor that also holds the text
+        // area; its rightmost visible button is the send/stop control, which
+        // works in every locale and survives renames of aria labels.
+        let rightEdge = rect.right;
+        let container = element.parentElement;
+        for (let depth = 0; container !== null && depth < 8; depth += 1) {
+          if (container.querySelector('textarea') !== null) {
+            for (const button of container.querySelectorAll('button')) {
+              const box = button.getBoundingClientRect();
+              if (box.width > 0 && box.right > rightEdge) rightEdge = box.right;
+            }
+            break;
+          }
+          container = container.parentElement;
+        }
+        const left = Math.max(12, Math.min(rightEdge - width, window.innerWidth - width - 12));
+        setAnchor({ left, bottom: window.innerHeight - rect.top + 12 });
       }, []);
 
       const close = useCallback(() => {
@@ -1175,20 +1199,23 @@ window.__ModuleLoader__.load({
           triggerEffort !== '' ? h('span', { className: 'tsl-trigger-effort' }, triggerEffort) : null,
           caret('tsl-caret'),
         ),
-        h(
-          'div',
-          {
-            key: 'popup',
-            ref: popupRef,
-            className: 'tsl-popup',
-            role: 'menu',
-            hidden: !open,
-            style:
-              anchor === null
-                ? { position: 'fixed', zIndex: 1100, visibility: 'hidden' }
-                : { position: 'fixed', zIndex: 1100, left: anchor.left, bottom: anchor.bottom },
-          },
-          popupChildren,
+        ReactDOM.createPortal(
+          h(
+            'div',
+            {
+              key: 'popup',
+              ref: popupRef,
+              className: 'tsl-popup',
+              role: 'menu',
+              hidden: !open,
+              style:
+                anchor === null
+                  ? { position: 'fixed', zIndex: 1100, visibility: 'hidden' }
+                  : { position: 'fixed', zIndex: 1100, left: anchor.left, bottom: anchor.bottom },
+            },
+            popupChildren,
+          ),
+          document.body,
         ),
       );
     }
